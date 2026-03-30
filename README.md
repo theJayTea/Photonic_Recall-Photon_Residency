@@ -233,6 +233,6 @@ README.md
 
 <div align="center">
 
-*built for the [Photon Residency](https://photon.sh) build challenge.*
+*built for the [Photon Residency](https://photon.sh) build challenge!*
 
 </div>
