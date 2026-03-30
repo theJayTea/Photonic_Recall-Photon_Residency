@@ -1,14 +1,42 @@
+<div align="center">
+
+<img src="Icon.jpg" width="140" alt="Photonic Recall Logo" />
+
 # Photonic Recall
 
-**Text someone's name, get a cheat sheet of everything you need to remember before seeing them.**
+### Text a name. Get a cheat sheet before you see them.
 
-Photonic Recall is an iMessage-native social memory agent. It runs locally on your Mac, watches your messages, and when you text a contact's name to yourself, it pulls your full conversation history, sends it through Gemini for synthesis, and texts you back a structured social briefing — all within iMessage.
+[![Built with Bun](https://img.shields.io/badge/runtime-Bun-f9f1e1?logo=bun)](https://bun.sh)
+[![Photon SDK](https://img.shields.io/badge/iMessage-Photon%20SDK-blue)](https://www.npmjs.com/package/@photon-ai/imessage-kit)
+[![Gemini Flash](https://img.shields.io/badge/LLM-Gemini%20Flash-4285F4?logo=google)](https://ai.google.dev)
+[![TypeScript](https://img.shields.io/badge/lang-TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-No separate app. No context switching. Just text a name and know exactly what to talk about.
+*An iMessage-native social memory agent. It reads your real message history, synthesizes everything you need to know about someone, and texts it back to you — all inside iMessage.*
+
+[Demo](#demo) &bull; [Setup](#setup) &bull; [Commands](#commands) &bull; [How It Works](#how-it-works) &bull; [Why This Exists](#why-photonic-recall)
+
+</div>
 
 ---
 
 ## Demo
+
+<div align="center">
+
+https://github.com/user-attachments/assets/demo-video
+
+https://github.com/theJayTea/Photonic-Recall-Photon-Residency-/raw/main/Demo%20Video.mp4
+
+<br/>
+
+<img src="Demo Screenshot.jpg" width="360" alt="Photonic Recall demo screenshot" />
+
+</div>
+
+<br/>
+
+<details>
+<summary><b>Example output</b></summary>
 
 ```
 You:     Sarah
@@ -52,6 +80,8 @@ Recall:  📋 Photonic RECALL
          Mom (3 days ago) — 1 message
 ```
 
+</details>
+
 ---
 
 ## Setup
@@ -59,28 +89,35 @@ Recall:  📋 Photonic RECALL
 ### Prerequisites
 
 - **macOS** (required — iMessage runs only on Mac)
-- **Bun** runtime ([install](https://bun.sh))
+- **[Bun](https://bun.sh)** runtime
 - **Full Disk Access** granted to your terminal (System Settings > Privacy & Security > Full Disk Access)
-- A **Gemini API key** ([get one](https://aistudio.google.com/apikey))
+- A **[Gemini API key](https://aistudio.google.com/apikey)**
 
 ### Install
 
 ```bash
-git clone <your-repo-url> photonic-recall
-cd photonic-recall
+git clone https://github.com/theJayTea/Photonic-Recall-Photon-Residency-.git
+cd Photonic-Recall-Photon-Residency-
 bun install
 ```
 
 ### Configure
 
-Edit `.env` and fill in your details:
+Create a `.env` file:
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 MY_IDENTIFIER=+1234567890
+TRIGGER_CONTACT=+0987654321
 ```
 
-`MY_IDENTIFIER` is your phone number or iCloud email — wherever you want the agent to send briefings back to.
+| Variable | Description |
+|----------|-------------|
+| `GEMINI_API_KEY` | Your Google Gemini API key |
+| `MY_IDENTIFIER` | Your phone number or iCloud email |
+| `TRIGGER_CONTACT` | Phone number or email of the contact you'll text commands to |
+
+> **Tip:** Rename any contact to "Photonic Recall" in your Contacts app — that becomes your dedicated chat with the agent.
 
 ### Run
 
@@ -88,79 +125,97 @@ MY_IDENTIFIER=+1234567890
 bun run src/index.ts
 ```
 
-You'll see:
-
 ```
 [10:30:00 AM] Starting Photonic Recall...
 [10:30:01 AM] Startup message sent
 [10:30:01 AM] Watching for messages... Press Ctrl+C to stop
 ```
 
-And you'll get an iMessage: "🧠 Photonic Recall is online. Text me someone's name and I'll brief you."
-
----
-
-## How It Works
-
-1. **You text a name** to yourself (e.g., "Sarah")
-2. **Photonic Recall detects it** — the agent watches all incoming DMs and recognizes name-like inputs
-3. **Fuzzy matches** the name against your iMessage chat list
-4. **Pulls your message history** with that person (last 200 messages)
-5. **Sends the history to Gemini Flash** for synthesis
-6. **Texts you back** a structured social briefing with five sections: Pulse, Last Convo, Their World, My IOUs, and Conversation Starters
-
-All of this happens inside iMessage. No browser, no app, no dashboard.
+You'll get an iMessage: *"🧠 Photonic Recall is online. Text me someone's name and I'll brief you."*
 
 ---
 
 ## Commands
 
 | Command | What it does |
-|---------|-------------|
-| `Sarah` | Get a social briefing on Sarah |
-| `Sarah deep` | Get a deeper analysis (500 messages) |
+|:--------|:-------------|
+| `Sarah` | Social briefing on Sarah |
+| `Sarah deep` | Deeper analysis (500 messages) |
 | `everyone` | See all unreplied messages |
-| `unreplied` | Same as `everyone` |
 | `recap` | Weekly conversation recap |
 | `help` | Usage guide |
 
-Names are fuzzy-matched — "Sar" finds "Sarah Chen", phone numbers work too.
+> Names are fuzzy-matched — `Sar` finds `Sarah Chen`. Phone numbers work too.
+
+---
+
+## How It Works
+
+```
+┌─────────────┐     ┌──────────────┐     ┌───────────────┐     ┌──────────────┐
+│  You text a  │────▶│ Fuzzy match  │────▶│ Pull message  │────▶│ Gemini Flash │
+│    name      │     │ against chat │     │   history     │     │  synthesizes │
+│              │     │    list      │     │  (200 msgs)   │     │   briefing   │
+└─────────────┘     └──────────────┘     └───────────────┘     └──────┬───────┘
+                                                                      │
+                                                                      ▼
+                                                               ┌──────────────┐
+                                                               │ Briefing is  │
+                                                               │  texted back │
+                                                               │  to you      │
+                                                               └──────────────┘
+```
+
+1. **You text a name** to your trigger contact
+2. **Photonic Recall detects it** — watches that chat for name-like inputs
+3. **Fuzzy matches** against your iMessage chat list via `listChats()`
+4. **Pulls your conversation history** with that person via `getMessages()`
+5. **Sends it to Gemini Flash** for synthesis into a structured briefing
+6. **Texts you back** five sections: Pulse, Last Convo, Their World, My IOUs, Conversation Starters
+
+All inside iMessage. No browser, no app, no dashboard.
 
 ---
 
 ## Features
 
-- **Fuzzy contact matching** — partial names, first names, phone numbers
-- **5-section social briefings** — Pulse, Last Convo, Their World, IOUs, Conversation Starters
-- **Deep mode** — fetch 500 messages for richer analysis
-- **Unreplied inbox** — see who's waiting on you
-- **Weekly recap** — who you talked to, open threads, fading connections
-- **Infinite loop prevention** — prefix-based + ID tracking, dual protection
-- **Rate limiting** — 30-second cooldown per query
-- **Long message splitting** — auto-splits responses that exceed iMessage limits
-- **Graceful error handling** — never crashes, always recovers
+| | Feature | Details |
+|---|---------|---------|
+| 🔍 | **Fuzzy contact matching** | Partial names, first names, phone numbers |
+| 📊 | **5-section briefings** | Pulse, Last Convo, Their World, IOUs, Starters |
+| 🔬 | **Deep mode** | 500 messages for richer analysis |
+| 📬 | **Unreplied inbox** | See who's waiting on you |
+| 📈 | **Weekly recap** | Top contacts, open threads, fading connections |
+| 🔄 | **Loop prevention** | Prefix-based + ID tracking, dual protection |
+| ⏱️ | **Rate limiting** | 30-second cooldown per query |
+| ✂️ | **Message splitting** | Auto-splits long responses |
+| 🛡️ | **Error recovery** | Never crashes, always recovers |
 
 ---
 
 ## Built With
 
-- **[Bun](https://bun.sh)** — fast JavaScript runtime
-- **[Photon iMessage SDK](https://www.npmjs.com/package/@photon-ai/imessage-kit)** — native iMessage access on macOS
-- **[Google Gemini Flash](https://ai.google.dev)** — fast, capable LLM for synthesis
-- **[OpenAI SDK](https://www.npmjs.com/package/openai)** — client library (pointed at Gemini's OpenAI-compatible endpoint)
-- **TypeScript** — type-safe, strict mode
+<table>
+<tr>
+<td align="center"><a href="https://bun.sh"><b>Bun</b></a><br/>Runtime</td>
+<td align="center"><a href="https://www.npmjs.com/package/@photon-ai/imessage-kit"><b>Photon SDK</b></a><br/>iMessage Access</td>
+<td align="center"><a href="https://ai.google.dev"><b>Gemini Flash</b></a><br/>LLM Synthesis</td>
+<td align="center"><a href="https://www.npmjs.com/package/openai"><b>OpenAI SDK</b></a><br/>API Client</td>
+<td align="center"><a href="https://www.typescriptlang.org/"><b>TypeScript</b></a><br/>Strict Mode</td>
+</tr>
+</table>
 
 ---
 
 ## Why Photonic Recall?
 
-The best AI agents don't ask you to switch contexts — they meet you where you already are.
+> *The best AI agents don't ask you to switch contexts — they meet you where you already are.*
 
-You don't need another app to remember that your friend mentioned a new job, or that you promised to send someone a link three weeks ago. That context already exists in your messages. Photonic Recall just surfaces it at the moment you need it.
+Everyone has that moment: *"Wait, what did we talk about last time?"* The context you need already exists in your messages — who mentioned a new job, what you promised to follow up on, the restaurant they recommended.
+
+Photonic Recall surfaces all of that at the exact moment you need it. No separate app. No dashboard. Just text a name, right where the conversation already happens.
 
 The name is a nod to how memory works — every interaction leaves a trace, like photons hitting film. This agent develops those traces into something useful, right when you need to recall them.
-
-Social context shouldn't require a separate app. It should live where the conversation already happens.
 
 ---
 
@@ -180,4 +235,8 @@ Social context shouldn't require a separate app. It should live where the conver
 
 ---
 
+<div align="center">
+
 *Built for the [Photon Residency](https://photon.sh) build challenge.*
+
+</div>
